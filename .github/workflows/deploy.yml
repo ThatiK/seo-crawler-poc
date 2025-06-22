@@ -47,6 +47,7 @@ jobs:
           IMAGE_URI="${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO }}/${{ secrets.GCP_RUN_SERVICE_NAME }}"
           gcloud run deploy ${{ secrets.GCP_RUN_SERVICE_NAME }} \
             --image $IMAGE_URI \
+            --service-account=${{ secrets.GCP_PROJECT_NUMBER }}-compute@developer.gserviceaccount.com \
             --platform managed \
             --region ${{ secrets.GCP_REGION }} \
             --allow-unauthenticated \
