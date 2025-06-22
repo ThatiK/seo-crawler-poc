@@ -12,7 +12,7 @@ def process_url(url, config, use_ml=False):
     """
     Process a single URL and return metadata, classification, topics, or error.
     """
-    user_agent = config.get("user_agent", "BrightEdgeCrawlerBot/0.1")
+    user_agent = config.get("user_agent", "SEOPOCCrawlerBot/0.1")
     timeout = int(config.get("timeout", 5))
 
     result = {"url": url, "error": ""}

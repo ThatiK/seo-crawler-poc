@@ -32,52 +32,6 @@ def write_results(rows, path, fieldnames):
             for row in rows:
                 writer.writerow({k: row.get(k, "") for k in fieldnames})
 
-
-"""
-def run(input_path, output_path, env, config_base_path, use_ml):
-    logger.info(f"Reading config from path: {config_base_path}/{env}.ini")
-    config = load_config(env, config_base_path)
-    user_agent = config.get("user_agent", "SEOCrawlerBot/0.1")
-    timeout = int(config.get("timeout", 5))
-
-    logger.info(f"Reading input urls from path: {input_path}")
-    urls = read_urls_from_file(input_path)
-    
-    logger.info(f"Loaded {len(urls)} URLs")
-    logger.info(f"Use ML for classification: {use_ml}")
-
-    results = []
-    fieldnames = ["url", "title", "meta_description", "h1", "canonical", "body", "classification", "topics", "error"]
-
-    for url in urls:
-        logger.info(f"Processing: {url}")
-        metadata = {"url": url, "error": ""}
-        try:
-            if not is_allowed_by_robots(url, user_agent):
-                logger.warning(f"Disallowed by robots.txt: {url}")
-                metadata["error"] = "Disallowed by robots.txt"
-            else:
-                result = fetch_metadata(url, user_agent, timeout)
-
-                if "error" not in result:
-                    metadata.update(result)
-                    metadata["classification"] = classify_page(result["body"], use_ml=use_ml)
-                    metadata["topics"] = ", ".join(extract_topics(result["body"]))
-                else:
-                    logger.warning("Unable to fetch metadata. error: {}".format(result["error"]))
-                    metadata["error"] = result["error"]
-
-        except Exception as e:
-            logger.exception(f"Failed to process {url}")
-            metadata["error"] = str(e)
-
-        results.append(metadata)
-
-
-    write_csv_to_file(results, output_path, fieldnames)
-    logger.info(f"Written output to: {output_path}")
-
-"""
 def run(input_path, output_path, env, config_base_path, use_ml):
     config = load_config(env, config_base_path)
     urls = read_urls(input_path)
