@@ -52,3 +52,4 @@ jobs:
             --region ${{ secrets.GCP_REGION }} \
             --allow-unauthenticated \
             --port 8080
+            
