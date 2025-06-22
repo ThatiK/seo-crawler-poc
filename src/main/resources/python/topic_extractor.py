@@ -17,6 +17,18 @@ def ensure_nltk_resources():
 ensure_nltk_resources()
 
 def extract_topics(body_text, top_n=5):
+    """
+    Extract potential topic keywords from input text using NLTK.
+
+    Tokenizes the text into words, removes stopwords and punctuation, and
+    returns a list of frequently occurring, relevant keywords suitable as topics.
+
+    Parameters:
+    - text (str): The input body content or article text.
+
+    Returns:
+    - List[str]: List of topic keywords extracted from the text.
+    """
     tokenizer = TreebankWordTokenizer()
     stop_words = set(stopwords.words("english"))
     words = tokenizer.tokenize(body_text.lower())
