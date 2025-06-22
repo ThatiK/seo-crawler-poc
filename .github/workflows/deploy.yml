@@ -17,27 +17,25 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      
-      - name: Get OIDC Token
+
+      - name: Authenticate to Google Cloud (keyless)
         id: auth
         uses: google-github-actions/auth@v2
         with:
+          workload_identity_provider: "projects/${{ secrets.GCP_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-pool/providers/github-provider"
+          service_account: "sa-github-deployer@${{ secrets.GCP_PROJECT_ID }}.iam.gserviceaccount.com"
           create_credentials_file: false
           export_environment_variables: false
 
-      - name: Decode OIDC Token Claims
+      - name: Print OIDC Token Claims
         run: |
-          echo "${{ steps.auth.outputs.id_token }}" | \
-            cut -d '.' -f 2 | \
-            base64 -d | jq
-
-      - name: Authenticate to Google Cloud (keyless)
-        uses: google-github-actions/auth@v1
-        with:
-          token_format: access_token
-          workload_identity_provider: "projects/${{ secrets.GCP_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-pool/providers/github-provider"
-          service_account: "sa-github-deployer@${{ secrets.GCP_PROJECT_ID }}.iam.gserviceaccount.com"
-
+          echo "Getting OIDC Token..."
+          ID_TOKEN=$(curl -s -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL" | jq -r '.value')
+          echo "Raw Claims (base64 decoded):"
+          echo "$ID_TOKEN" | cut -d '.' -f 2 | base64 -d | jq
+        env:
+          ACTIONS_ID_TOKEN_REQUEST_TOKEN: ${{ steps.auth.outputs.id_token }}
+          ACTIONS_ID_TOKEN_REQUEST_URL: "https://vstoken.actions.githubusercontent.com/.well-known/openid-configuration"
 
       - name: Set up gcloud CLI
         uses: google-github-actions/setup-gcloud@v1
