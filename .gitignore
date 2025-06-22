@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.env
+.env
+*.pyc
+
+# data
+nltk_data/
+gcp_key.json
+
+# Docker volumes
+pgdata/
+data/output/
+data/tmp/
+
+
+# VS Code / MacOS
+.vscode/
+.DS_Store
+
+# MacOS
+.DS_Store
+
+# Random
+commands.txt
+keys/
+
