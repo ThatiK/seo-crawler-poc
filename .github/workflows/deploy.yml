@@ -10,7 +10,6 @@ jobs:
   deploy:
     name: Build and Deploy to GCP
     runs-on: ubuntu-latest
-
     permissions:
       id-token: write
       contents: read
@@ -18,6 +17,19 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+      
+      - name: Get OIDC Token
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          create_credentials_file: false
+          export_environment_variables: false
+
+      - name: Decode OIDC Token Claims
+        run: |
+          echo "${{ steps.auth.outputs.id_token }}" | \
+            cut -d '.' -f 2 | \
+            base64 -d | jq
 
       - name: Authenticate to Google Cloud (keyless)
         uses: google-github-actions/auth@v1
