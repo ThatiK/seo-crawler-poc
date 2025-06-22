@@ -10,15 +10,21 @@ jobs:
   deploy:
     name: Build and Deploy to GCP
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Google Cloud CLI
-        uses: google-github-actions/auth@v1
+      - name: Authenticate to Google Cloud (keyless)
+        uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          token_format: access_token
+          workload_identity_provider: "projects/${{ secrets.GCP_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-pool/providers/github-provider"
+          service_account: "sa-github-deployer@${{ secrets.GCP_PROJECT_ID }}.iam.gserviceaccount.com"
+
 
       - name: Set up gcloud CLI
         uses: google-github-actions/setup-gcloud@v1
@@ -41,6 +47,7 @@ jobs:
           IMAGE_URI="${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO }}/${{ secrets.GCP_RUN_SERVICE_NAME }}"
           gcloud run deploy ${{ secrets.GCP_RUN_SERVICE_NAME }} \
             --image $IMAGE_URI \
+            --service-account=${{ secrets.GCP_PROJECT_NUMBER }}-compute@developer.gserviceaccount.com \
             --platform managed \
             --region ${{ secrets.GCP_REGION }} \
             --allow-unauthenticated \
