@@ -5,18 +5,19 @@
 
 1. [ Objective](#1-objective)
 2. [ Cloud Platform](#2-cloud-platform)
-3. [ Input Sources](#3-input-sources)
-4. [ Ingestion & Kafka Architecture](#4-ingestion--kafka-architecture)
-5. [ URL Processing: Kafka Consumer + FastAPI](#5-url-processing-kafka-consumer--fastapi)
-6. [ Output Storage & Batching Strategy](#6-output-storage--batching-strategy)
-7. [ GKE Deployment Overview](#7-gke-deployment-overview)
-8. [ Unified Data Schema (BigQuery + ClickHouse)](#8-unified-data-schema-bigquery--clickhouse)
-9. [ Storage Strategy & Cost Optimization](#9-storage-strategy--cost-optimization)
-10. [ SLOs and SLAs](#10-slos-and-slas)
-11. [ Cost, Performance & Scale](#11-cost-performance--scale)
-12. [ Reliability Strategy](#12-reliability-strategy)
-13. [ Metrics Strategy and Reliability Considerations](#13-metrics-strategy-and-reliability-considerations)
-14. [ Conclusion](#14-conclusion)
+3. [ Architecture Overview](#3-architecture-overview)
+4. [ Input Sources](#4-input-sources)
+5. [ Ingestion & Kafka Architecture](#5-ingestion--kafka-architecture)
+6. [ URL Processing: Kafka Consumer + FastAPI](#6-url-processing-kafka-consumer--fastapi)
+7. [ Output Storage & Batching Strategy](#7-output-storage--batching-strategy)
+8. [ GKE Deployment Overview](#8-gke-deployment-overview)
+9. [ Unified Data Schema (BigQuery + ClickHouse)](#9-unified-data-schema-bigquery--clickhouse)
+10. [ Storage Strategy & Cost Optimization](#10-storage-strategy--cost-optimization)
+11. [ SLOs and SLAs](#11-slos-and-slas)
+12. [ Cost, Performance & Scale](#12-cost-performance--scale)
+13. [ Reliability Strategy](#13-reliability-strategy)
+14. [ Metrics Strategy and Reliability Considerations](#14-metrics-strategy-and-reliability-considerations)
+15. [ Conclusion](#15-conclusion)
 
 
 ## 1. Objective
@@ -37,7 +38,14 @@ This design is implemented on **Google Cloud Platform (GCP)** and leverages the 
 
 ---
 
-## 3. Input Sources
+## 3. Architecture Overview
+
+![System Design](part2_system_design.png)
+
+---
+
+
+## 4. Input Sources
 
 | Source     | Format                | Example Path / Query |
 |------------|------------------------|-----------------------|
@@ -46,7 +54,7 @@ This design is implemented on **Google Cloud Platform (GCP)** and leverages the 
 
 ---
 
-## 4. Ingestion & Kafka Architecture
+## 5. Ingestion & Kafka Architecture
 
 Each Kafka event represents **one URL** to be crawled.
 
@@ -88,7 +96,7 @@ Each Kafka event represents **one URL** to be crawled.
 
 ---
 
-## 5. URL Processing: Kafka Consumer + FastAPI
+## 6. URL Processing: Kafka Consumer + FastAPI
 
 ### Kafka Consumer Responsibilities
 - Subscribes to the `url_input` Kafka topic.
@@ -111,7 +119,20 @@ Each Kafka event represents **one URL** to be crawled.
 - Enforces per-domain crawl politeness (rate-limiting, robots.txt compliance).
 - Returns structured JSON result or error object.
 
-## 6. Output Storage & Batching Strategy
+#### Politeness and robots.txt Handling
+
+- Before crawling any URL, the FastAPI service checks the target domain's `robots.txt` file.
+- Uses standard `robots-parser` (or similar) to determine:
+  - Whether crawling is allowed
+  - Crawl-delay (if specified)
+  - Disallowed paths
+- Per-domain rate-limiting is enforced using an in-memory or Redis-based throttle.
+- Domains that return 403 or block bot-like behavior are temporarily blacklisted.
+
+This ensures the system remains compliant and does not get IP-banned during high-volume crawls.
+
+
+## 7. Output Storage & Batching Strategy
 
 ### Batching Logic
 - A batch is flushed to GCS when:
@@ -164,7 +185,7 @@ Each URL crawl can be split into two outputs:
 | Content reparse    | HTML stored in GCS enables reprocessing without re-crawl |
 
 ---
-## 7. GKE Deployment Overview
+## 8. GKE Deployment Overview
 
 - FastAPI containerized using Docker and deployed to **Google Kubernetes Engine**.
 - Kafka brokers run inside GKE with Prometheus exporters.
@@ -173,7 +194,7 @@ Each URL crawl can be split into two outputs:
 
 ---
 
-## 8. Unified Data Schema (BigQuery + ClickHouse)
+## 9. Unified Data Schema (BigQuery + ClickHouse)
 
 | Field               | Type      | Description |
 |--------------------|-----------|-------------|
@@ -193,7 +214,7 @@ Each URL crawl can be split into two outputs:
 
 ---
 
-## 9. Storage Strategy & Cost Optimization
+## 10. Storage Strategy & Cost Optimization
 
 ### GCS vs BigQuery Roles
 
@@ -218,7 +239,7 @@ Each URL crawl can be split into two outputs:
 ---
 
 
-## 10. SLOs and SLAs
+## 11. SLOs and SLAs
 
 | Metric                | Target |
 |-----------------------|--------|
@@ -230,7 +251,7 @@ Each URL crawl can be split into two outputs:
 
 ---
 
-## 11. Cost, Performance & Scale
+## 12. Cost, Performance & Scale
 
 | Layer        | Optimization |
 |--------------|--------------|
@@ -243,7 +264,7 @@ Each URL crawl can be split into two outputs:
 
 ---
 
-## 12. Reliability Strategy
+## 13. Reliability Strategy
 
 | Concern                     | Mitigation / Feature                                                   |
 |-----------------------------|------------------------------------------------------------------------|
@@ -256,7 +277,7 @@ Each URL crawl can be split into two outputs:
 | Batch write failures        | Batch retried; partially failed batches are logged but not committed   |
 | Historical auditability     | DLQ writes to BQ table (`failed_crawls`) for replay or root-cause      |
 
-### 13. Metrics Strategy and Reliability Considerations
+### 14. Metrics Strategy and Reliability Considerations
 
 Prometheus metrics are used for **observability and alerting**, but are not a durable source of truth. This section outlines how we track system progress reliably across crawl success, failures, retries, and DLQ flow.
 
@@ -318,7 +339,7 @@ For **tracking actual system progress** (success/failure of each crawl):
 
 
 
-## 14. Conclusion 
+## 15. Conclusion 
 
 This final design supports:
 
