@@ -1,5 +1,3 @@
-# src/main/resources/python/crawler_core.py
-
 import logging
 from metadata_extractor import fetch_metadata
 from robots_checker import is_allowed_by_robots

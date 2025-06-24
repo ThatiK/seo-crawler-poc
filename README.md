@@ -7,7 +7,7 @@ This project is a proof-of-concept metadata crawler that can:
 - Extract relevant topics
 - Serve results via CLI or FastAPI API
 
-## 🧩 Architecture
+## Architecture
 
 - Language: Python 3.11
 - Deployed via: Docker, GitHub Actions, Google Cloud Run
@@ -19,7 +19,7 @@ This project is a proof-of-concept metadata crawler that can:
 
 ---
 
-## 🔧 Usage (CLI)
+## Usage (CLI)
 
 ```bash
 python src/main/resources/python/main.py \
@@ -36,17 +36,18 @@ python src/main/resources/python/main.py \
 
 
 
-## 🤖 Bot User-Agent Setup
+## Bot User-Agent Setup
 
 This crawler uses a custom bot User-Agent registered for this PoC.  
 The implementation and metadata for the bot are maintained in the [project GitHub repository](https://github.com/ThatiK/seo-crawler-poc).
 
 We respect `robots.txt` rules and identify our crawler via:
+
 User-Agent: SEO-Metadata-Crawler/1.0 (+https://thatik.github.io/seo-crawler-poc)
 
 ---
 
-## 🌐 Usage (API)
+## Usage (API)
 
 Deployed to Cloud Run. Use the `/crawl` endpoint:
 
@@ -83,7 +84,7 @@ GET /health
 
 ---
 
-## 🚀 Deployment
+## Deployment
 
 1. Dockerized and tested locally using:
 
@@ -96,7 +97,7 @@ GET /health
 
 ---
 
-## 📦 Project Structure
+## Project Structure
 
 ```
 src/
@@ -114,10 +115,10 @@ src/
 
 ---
 
-## 📌 Example Test URLs
+## Example Test URLs
 
 Use these for local or API testing:
 
-- https://www.amazon.com/Cuisinart-CPT-122-Compact-2-Slice-Toaster/dp/B009GQ034C
-- https://blog.rei.com/camp/how-to-introduce-your-indoorsy-friend-to-the-outdoors/
-- https://www.cnn.com/2013/06/10/politics/edward-snowden-profile/
+- http://www.amazon.com/Cuisinart-CPT-122-Compact-2-Slice-Toaster/dp/B009GQ034C/ref=sr_1_1?s=kitchen&ie=UTF8&qid=1431620315&sr=1-1&keywords=toaster
+- http://blog.rei.com/camp/how-to-introduce-your-indoorsy-friend-to-the-outdoors/
+- http://www.cnn.com/2013/06/10/politics/edward-snowden-profile/

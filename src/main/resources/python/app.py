@@ -1,5 +1,3 @@
-# src/main/resources/python/app.py
-
 from fastapi import FastAPI
 from pydantic import BaseModel
 from crawler_core import process_url
